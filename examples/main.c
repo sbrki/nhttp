@@ -65,7 +65,7 @@ int permanent_redirect_handler(const struct nhttp_ctx *ctx) {
 }
 
 int query_param_handler(const struct nhttp_ctx *ctx) {
-  char buf[1024] = {0};
+  char buf[4096] = {0};
   sprintf(buf, "foo = <%s>, bar = <%s>", nhttp_get_query_param(ctx, "foo"),
           nhttp_get_query_param(ctx, "bar"));
   return nhttp_send_string(ctx, buf, 200);

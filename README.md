@@ -15,6 +15,13 @@ memory footprint, and is intended for use in constrained computing environments.
 ```c
 #include "nhttp.h"
 
+/* route: /name/{name} */
+int var_handler(const struct nhttp_ctx *ctx) {
+  char buf[1024] = {0};
+  sprintf(buf, "Hey %s, how are you?", nhttp_get_path_param(ctx, "name"));
+  return nhttp_send_string(ctx, buf, 200);
+}
+
 int html_handler(const struct nhttp_ctx *ctx) {
   char *html =
       "<html>"
@@ -23,16 +30,15 @@ int html_handler(const struct nhttp_ctx *ctx) {
       "  </head>"
       "  <body>"
       "    <h1>nhttp server</h1>"
+      "    <img src='/blob' style='image-rendering:pixelated; width: 20%;'/>"
+      "    <p>how is it going</p>"
+      "    <audio controls>"
+      "      <source src='/song.mp3' type='audio/mpeg'>"
+      "    Your browser does not support the audio element."
+      "    </audio>"
       "  </body>"
       "</html>";
   return nhttp_send_html(ctx, html, 200);
-}
-
-int var_handler(const struct nhttp_ctx *ctx) {
-  char buf[1024] = {0};
-  sprintf(buf, "Hey %s, how are you?",
-          nhttp_get_request_header(ctx, "name"));
-  return nhttp_send_string(ctx, buf, 200);
 }
 
 int blob_handler(const struct nhttp_ctx *ctx) {
@@ -54,19 +60,31 @@ int blob_handler(const struct nhttp_ctx *ctx) {
   return nhttp_send_blob(ctx, data, 152, "image/png", 200);
 }
 
-/* also supports byte ranges out of the box */
+
 int file_handler(const struct nhttp_ctx *ctx) {
-  nhttp_set_response_header(ctx, "Content-Type", "image/png");
-  return nhttp_send_file(ctx, "./image.png");
+  nhttp_set_response_header(ctx, "Content-Type", "audio/mpeg");
+  return nhttp_send_file(ctx, "./song.mp3");
+}
+
+int permanent_redirect_handler(const struct nhttp_ctx *ctx) {
+  return nhttp_redirect(ctx, "/blob", 1);
+}
+
+int query_param_handler(const struct nhttp_ctx *ctx) {
+  char buf[4096] = {0};
+  sprintf(buf, "foo = <%s>, bar = <%s>", nhttp_get_query_param(ctx, "foo"),
+          nhttp_get_query_param(ctx, "bar"));
+  return nhttp_send_string(ctx, buf, 200);
 }
 
 int main(void) {
   struct nhttp_server *s = nhttp_server_create();
-
-  nhttp_on_get(s, "/html", html_handler);
   nhttp_on_get(s, "/name/{name}/", var_handler);
+  nhttp_on_get(s, "/html", html_handler);
   nhttp_on_get(s, "/blob", blob_handler);
-  nhttp_on_get(s, "/image.png", file_handler);
+  nhttp_on_get(s, "/song.mp3", file_handler);
+  nhttp_on_get(s, "/permanent-redirect", permanent_redirect_handler);
+  nhttp_on_get(s, "/query-param", query_param_handler);
 
   nhttp_server_run(s, 8080);
 }
