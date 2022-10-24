@@ -5,6 +5,7 @@
 #include "nhttp_util.h"
 #include <stdarg.h> /* uint32_t, */
 #include <stdlib.h> /* malloc, */
+#include <string.h> /* strsep, memset, strcpy */
 
 struct _nhttp_route_node *_nhttp_route_node_create(const char *name) {
   struct _nhttp_route_node *node;

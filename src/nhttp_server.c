@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 #include <signal.h>     /* signal, SIG* */
 #include <sys/socket.h> /* socket, */
+#include <string.h> /* memset,strerror,strlen,strcmp,strcpy */
 
 #include <stdlib.h> /* malloc,strcpy, */
 

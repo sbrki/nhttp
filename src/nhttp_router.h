@@ -4,7 +4,6 @@
 #include "nhttp_handler.h"
 #include "nhttp_map.h"
 #include "nhttp_req_type.h"
-#include <string.h> /* strsep, memset, strcpy */
 
 #define NHTTP_ROUTER_NAME_SIZE 512
 #define NHTTP_ROUTER_MAX_CHILDREN 128
