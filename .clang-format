@@ -1,0 +1,4 @@
+BasedOnStyle: LLVM 
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+ReflowComments: true

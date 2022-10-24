@@ -1,0 +1,7 @@
+-Wall
+-Wextra
+-Wconversion
+-Wstrict-prototypes
+-pedantic
+-std=c89
+-D_DEFAULT_SOURCE
