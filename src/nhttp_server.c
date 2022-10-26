@@ -7,11 +7,14 @@
 #include <fcntl.h> /* O_* */
 #include <netinet/in.h>
 #include <signal.h>     /* signal, SIG* */
+#include <string.h>     /* memset,strerror,strlen,strcmp,strcpy */
 #include <sys/socket.h> /* socket, */
-#include <string.h> /* memset,strerror,strlen,strcmp,strcpy */
 
 #include <stdlib.h> /* malloc,strcpy, */
 
+static void _nhttp_on_req_type(struct nhttp_server *s, const char *path,
+                               nhttp_handler_func   handler,
+                               enum _nhttp_req_type rt);
 static void _nhttp_server_dispatch(struct nhttp_server *s, int connfd);
 static void _nhttp_server_send_status_line(int connfd, int status_code);
 static int  _nhttp_send_generic(const struct nhttp_ctx *ctx,
@@ -34,7 +37,7 @@ struct nhttp_server *nhttp_server_create() {
 }
 
 void nhttp_server_run(struct nhttp_server *s, int port) {
-  /* TODO(sbrki): register sig handlers for gracefully shutting down the serv */
+  /* TODO(sbrki): register sig handlers for gracefully shutting down the serv*/
 
   int                sockfd, connfd;
   struct sockaddr_in serv_info;
@@ -201,15 +204,41 @@ static void _nhttp_server_assert_path_len(const char *path) {
   }
 }
 
-void nhttp_on_get(struct nhttp_server *s, const char *path,
-                  nhttp_handler_func handler) {
+static void _nhttp_on_req_type(struct nhttp_server *s, const char *path,
+                               nhttp_handler_func   handler,
+                               enum _nhttp_req_type rt) {
   char  processed_path[NHTTP_SERVER_LINE_SIZE] = {0};
   char *pp                                     = processed_path;
   _nhttp_server_assert_path_len(path);
   strcpy(pp, path);
   _nhttp_util_remove_leading_slash(pp);
   _nhttp_util_remove_trailing_slash(pp);
-  _nhttp_route_register(s->router_root, &pp, GET, handler);
+  _nhttp_route_register(s->router_root, &pp, rt, handler);
+}
+
+void nhttp_on_get(struct nhttp_server *s, const char *path,
+                  nhttp_handler_func handler) {
+  _nhttp_on_req_type(s, path, handler, GET);
+}
+
+void nhttp_on_head(struct nhttp_server *s, const char *path,
+                   nhttp_handler_func handler) {
+  _nhttp_on_req_type(s, path, handler, HEAD);
+}
+
+void nhttp_on_post(struct nhttp_server *s, const char *path,
+                   nhttp_handler_func handler) {
+  _nhttp_on_req_type(s, path, handler, POST);
+}
+
+void nhttp_on_put(struct nhttp_server *s, const char *path,
+                  nhttp_handler_func handler) {
+  _nhttp_on_req_type(s, path, handler, PUT);
+}
+
+void nhttp_on_delete(struct nhttp_server *s, const char *path,
+                     nhttp_handler_func handler) {
+  _nhttp_on_req_type(s, path, handler, DELETE);
 }
 
 /* delivery */

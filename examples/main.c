@@ -71,6 +71,12 @@ int query_param_handler(const struct nhttp_ctx *ctx) {
   return nhttp_send_string(ctx, buf, 200);
 }
 
+int post_handler(const struct nhttp_ctx *ctx) {
+  char buf[4096] = {0};
+  sprintf(buf, "hello %s", nhttp_get_path_param(ctx, "name"));
+  return nhttp_send_string(ctx, buf, 200);
+}
+
 int main(void) {
   struct nhttp_server *s = nhttp_server_create();
   nhttp_on_get(s, "/name/{name}/", var_handler);
@@ -81,6 +87,7 @@ int main(void) {
   nhttp_on_get(s, "/temporary-redirect", temporary_redirect_handler);
   nhttp_on_get(s, "/permanent-redirect", permanent_redirect_handler);
   nhttp_on_get(s, "/query-param", query_param_handler);
+  nhttp_on_post(s, "/post/{name}", post_handler);
 
   nhttp_server_run(s, 8080);
 }

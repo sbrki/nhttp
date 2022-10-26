@@ -28,6 +28,26 @@ void nhttp_server_run(struct nhttp_server *s, int port);
 void nhttp_on_get(struct nhttp_server *s, const char *path,
                   nhttp_handler_func handler);
 
+/* nhttp_on_head registeres the passed `handler` to handle HEAD requests */
+/* on the specified `path`. */
+void nhttp_on_head(struct nhttp_server *s, const char *path,
+                   nhttp_handler_func handler);
+
+/* nhttp_on_post registeres the passed `handler` to handle POST requests */
+/* on the specified `path`. */
+void nhttp_on_post(struct nhttp_server *s, const char *path,
+                   nhttp_handler_func handler);
+
+/* nhttp_on_put registeres the passed `handler` to handle PUT requests */
+/* on the specified `path`. */
+void nhttp_on_put(struct nhttp_server *s, const char *path,
+                  nhttp_handler_func handler);
+
+/* nhttp_on_delete registeres the passed `handler` to handle DELETE requests */
+/* on the specified `path`. */
+void nhttp_on_delete(struct nhttp_server *s, const char *path,
+                     nhttp_handler_func handler);
+
 /* delivery */
 int nhttp_send_string(const struct nhttp_ctx *ctx, const char *str,
                       int status_code);
