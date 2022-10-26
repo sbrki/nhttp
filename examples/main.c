@@ -3,7 +3,7 @@
 #include "../src/nhttp.h"
 
 /* route: /name/{name} */
-int var_handler(const struct nhttp_ctx *ctx) {
+int path_param_handler(const struct nhttp_ctx *ctx) {
   char buf[1024] = {0};
   sprintf(buf, "Hey %s, how are you?", nhttp_get_path_param(ctx, "name"));
   return nhttp_send_string(ctx, buf, 200);
@@ -64,6 +64,7 @@ int permanent_redirect_handler(const struct nhttp_ctx *ctx) {
   return nhttp_redirect(ctx, "/blob", 1);
 }
 
+/* example route: /query-param?foo=something&bar=else */
 int query_param_handler(const struct nhttp_ctx *ctx) {
   char buf[4096] = {0};
   sprintf(buf, "foo = <%s>, bar = <%s>", nhttp_get_query_param(ctx, "foo"),
@@ -71,6 +72,7 @@ int query_param_handler(const struct nhttp_ctx *ctx) {
   return nhttp_send_string(ctx, buf, 200);
 }
 
+/* route: /post/{name} */
 int post_handler(const struct nhttp_ctx *ctx) {
   char buf[4096] = {0};
   sprintf(buf, "hello %s", nhttp_get_path_param(ctx, "name"));
@@ -79,7 +81,7 @@ int post_handler(const struct nhttp_ctx *ctx) {
 
 int main(void) {
   struct nhttp_server *s = nhttp_server_create();
-  nhttp_on_get(s, "/name/{name}/", var_handler);
+  nhttp_on_get(s, "/name/{name}/", path_param_handler);
   nhttp_on_get(s, "/html", html_handler);
   nhttp_on_get(s, "/blob", blob_handler);
   nhttp_on_get(s, "/song.mp3", file_handler);

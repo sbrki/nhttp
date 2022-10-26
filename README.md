@@ -16,7 +16,7 @@ memory footprint, and is intended for use in constrained computing environments.
 #include "nhttp.h"
 
 /* route: /name/{name} */
-int var_handler(const struct nhttp_ctx *ctx) {
+int path_param_handler(const struct nhttp_ctx *ctx) {
   char buf[1024] = {0};
   sprintf(buf, "Hey %s, how are you?", nhttp_get_path_param(ctx, "name"));
   return nhttp_send_string(ctx, buf, 200);
@@ -60,16 +60,24 @@ int blob_handler(const struct nhttp_ctx *ctx) {
   return nhttp_send_blob(ctx, data, 152, "image/png", 200);
 }
 
+int custom_err_handler(const struct nhttp_ctx *ctx) {
+  return nhttp_send_string(ctx, "My custom error code!", 600);
+}
 
 int file_handler(const struct nhttp_ctx *ctx) {
   nhttp_set_response_header(ctx, "Content-Type", "audio/mpeg");
   return nhttp_send_file(ctx, "./song.mp3");
 }
 
+int temporary_redirect_handler(const struct nhttp_ctx *ctx) {
+  return nhttp_redirect(ctx, "/blob", 0);
+}
+
 int permanent_redirect_handler(const struct nhttp_ctx *ctx) {
   return nhttp_redirect(ctx, "/blob", 1);
 }
 
+/* example route: /query-param?foo=something&bar=else */
 int query_param_handler(const struct nhttp_ctx *ctx) {
   char buf[4096] = {0};
   sprintf(buf, "foo = <%s>, bar = <%s>", nhttp_get_query_param(ctx, "foo"),
@@ -77,18 +85,27 @@ int query_param_handler(const struct nhttp_ctx *ctx) {
   return nhttp_send_string(ctx, buf, 200);
 }
 
+/* route: /post/{name} */
+int post_handler(const struct nhttp_ctx *ctx) {
+  char buf[4096] = {0};
+  sprintf(buf, "hello %s", nhttp_get_path_param(ctx, "name"));
+  return nhttp_send_string(ctx, buf, 200);
+}
+
 int main(void) {
   struct nhttp_server *s = nhttp_server_create();
-  nhttp_on_get(s, "/name/{name}/", var_handler);
+  nhttp_on_get(s, "/name/{name}/", path_param_handler);
   nhttp_on_get(s, "/html", html_handler);
   nhttp_on_get(s, "/blob", blob_handler);
   nhttp_on_get(s, "/song.mp3", file_handler);
+  nhttp_on_get(s, "/600", custom_err_handler);
+  nhttp_on_get(s, "/temporary-redirect", temporary_redirect_handler);
   nhttp_on_get(s, "/permanent-redirect", permanent_redirect_handler);
   nhttp_on_get(s, "/query-param", query_param_handler);
+  nhttp_on_post(s, "/post/{name}", post_handler);
 
   nhttp_server_run(s, 8080);
 }
-
 ```
 
 # Status
